@@ -1,0 +1,63 @@
+HTML:
+<textarea id="html"><div>Hi</div></textarea> <br/>
+CSS:
+<textarea id="css">div {color: blue}</textarea>  <br/>
+JavaScript:
+<textarea id="javascript">console.log('yes')</textarea>  <br/>
+
+<button id="launchEditor">Launch</button>
+
+<script>
+
+function postMessageSend(url, data){
+	var editor = window.open(url,'_blank');
+	editor.addEventListener("message", function(ev){
+		if(ev.data === "ready") {
+			editor.postMessage(JSON.stringify(data));
+		}
+	});
+}
+
+function urlSend(url, json) {
+	var urlInstance = new URL(url);
+	urlInstance.searchParams.set("json", json)
+	window.open(urlInstance.toString(),'_blank');
+}
+
+function getEditorUrl(){
+	var lastSlash = window.location.toString().lastIndexOf("/");
+	return window.location.toString().substr(0,lastSlash)+"/index.html";
+}
+
+launchEditor.onclick = function(){
+
+	var data= {
+		html: html.value,
+		css: css.value,
+		javascript: javascript.value
+	};
+
+	var json = JSON.stringify(data);
+	if(json.length > 32 * 1024) {
+		postMessageSend( getEditorUrl(), data )
+	} else {
+		urlSend( getEditorUrl(), json )
+	}
+	/*
+	var channelName = "channel111-222"
+	window.open('editor.html?'+channelName,'_blank');
+
+	const channel = new BroadcastChannel(channelName);
+
+	channel.onmessage = function(ev) {
+		if(ev.data === "ready") {
+			channel.postMessage(JSON.stringify({
+				html: "<div id='foo'>Foo</div>",
+				javascript: "foo.onclick = function(){ this.innerHTML = 'Bar' };",
+				css: "div {color: green}"
+			}));
+		}
+	}*/
+	//channel.postMessage('ready');
+}
+</script>
